@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Inscrição — Refeições do Fim de Semana</title>
+<title>Inscrição de Residente</title>
 <style>
   :root {
     --bg: #f7f4ef;
@@ -83,31 +83,30 @@
 </head>
 <body>
   <div class="card">
-    <h1>Inscrição — Refeições do Fim de Semana</h1>
-    <div class="sub">Cadetes residentes na ACIPOL</div>
+    <h1>Lista de Residentes FIM de Semana</h1>
+    <div class="sub">Só Residentes da ACIPOL</div>
 
     <div id="status" class="status">A verificar...</div>
 
     <form id="form">
       <label for="nome">Nome completo</label>
-      <input type="text" id="nome" placeholder="Ex: Manuel Félix Paulo" autocomplete="off" />
+      <input type="text" id="nome" placeholder="Seu nome aqui" autocomplete="off" />
 
       <label for="matricula">Número de matrícula</label>
-      <input type="text" id="matricula" placeholder="Ex: AC2303" autocomplete="off" />
+      <input type="text" id="matricula" placeholder="Seu NURI aqui" autocomplete="off" />
 
-      <button type="submit" id="btnEnviar">Inscrever</button>
+      <button type="submit" id="btnEnviar">Constar</button>
     </form>
     <div id="msg"></div>
 
     <div class="list-title">
-      <span>Já inscritos neste período</span>
-      <span id="contagem">0 cadetes</span>
+      <span id="contagem">0 Residentes</span>
+      <span>Que já constam</span>
     </div>
     <ul id="lista"></ul>
   </div>
 
 <script>
-  // >>> Cole aqui o URL da implantação do Apps Script (Web App) <<<
   var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4zTaR0zxbzubBIWCP21FRjBvby4CPK8CdS5ewglIMPfgA2VE0nKKcXB4tv1YKo0ja/exec";
 
   var formAberto = false;
@@ -120,18 +119,18 @@
         var statusEl = document.getElementById("status");
         var btn = document.getElementById("btnEnviar");
         if (formAberto) {
-          statusEl.textContent = "Inscrições abertas até quinta-feira, 21:00";
+          statusEl.textContent = "Inscrições abertas até Quinta-feira, 21:00";
           statusEl.className = "status aberto";
           btn.disabled = false;
         } else {
-          statusEl.textContent = "Inscrições fechadas — abrem novamente na segunda-feira";
+          statusEl.textContent = "Inscrições Encerradas, até Segunda-feira";
           statusEl.className = "status fechado";
           btn.disabled = true;
         }
         renderLista(data.inscritos || []);
       })
       .catch(function () {
-        document.getElementById("status").textContent = "Não foi possível ligar ao servidor.";
+        document.getElementById("status").textContent = "Impossível de ligar ao servidor.";
       });
   }
 
@@ -139,7 +138,7 @@
     document.getElementById("contagem").textContent = inscritos.length + " cadetes";
     var ul = document.getElementById("lista");
     if (inscritos.length === 0) {
-      ul.innerHTML = '<li class="empty">Ainda ninguém se inscreveu.</li>';
+      ul.innerHTML = '<li class="empty">Sem Residentes.</li>';
       return;
     }
     ul.innerHTML = inscritos.map(function (ins, i) {
@@ -159,7 +158,7 @@
     var nome = document.getElementById("nome").value.trim();
     var matricula = document.getElementById("matricula").value.trim();
     if (!nome || !matricula) {
-      mostrarMsg("Preencha nome e matrícula.", false);
+      mostrarMsg("Preencha nome e NURI.", false);
       return;
     }
     var btn = document.getElementById("btnEnviar");
@@ -175,17 +174,17 @@
       .then(function (data) {
         btn.disabled = false;
         if (data.ok) {
-          mostrarMsg("Inscrição registada com sucesso.", true);
+          mostrarMsg("Inscrito(a) com sucesso.", true);
           document.getElementById("nome").value = "";
           document.getElementById("matricula").value = "";
           carregarStatus();
         } else {
-          mostrarMsg(data.erro || "Não foi possível inscrever.", false);
+          mostrarMsg(data.erro || "Impossível inscrever.", false);
         }
       })
       .catch(function () {
         btn.disabled = false;
-        mostrarMsg("Erro de ligação. Tente novamente.", false);
+        mostrarMsg("Sem Internet. Tente novamente.", false);
       });
   });
 
