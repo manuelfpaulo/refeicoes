@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Painel do Refeitório — ACIPOL</title>
+<title>Área da Cozinha e Refeitório</title>
 <style>
   :root {
     --bg: #f7f4ef;
@@ -74,26 +74,26 @@
 <body>
 
 <div id="login-screen">
-  <h1>Painel do Refeitório</h1>
-  <div class="sub">ACIPOL — Faça login para continuar</div>
+  <h1>Painel da Cozinha e Refeitório</h1>
+ /* <div class="sub">ACIPOL — Faça login para continuar</div> */
   <div id="login-msg"></div>
   <label>Utilizador</label>
   <input type="text" id="username" autocomplete="off" />
   <label>Senha</label>
-  <input type="password" id="password" />
+  <input type="password" id="password" autocomplete="off" />
   <button id="btnLogin">Entrar</button>
 </div>
 
 <div id="dashboard">
   <div class="topbar">
-    <div>Logado como <b id="userLabel"></b></div>
+    <div>Entrou como <b id="userLabel"></b></div>
     <button id="btnLogout">Sair</button>
   </div>
 
   <div class="row-info">
     <span class="badge" id="dataBadge">—</span>
     <div class="counter">
-      <div class="lbl" id="counterLabel">Restantes agora</div>
+      <div class="lbl" id="counterLabel">Restam</div>
       <div class="val" id="counterValue">—</div>
     </div>
   </div>
@@ -105,12 +105,9 @@
     </table>
   </div>
 
-  <div id="admin-panel" style="display:none;">
-    <h3>Gestão de feriados (admin)</h3>
+  <div id="admin-panel" style="display:none;">Feriados (admin)</h3>
     <label class="holiday-toggle">
-      <input type="checkbox" id="holidayToggle" />
-      Marcar este fim de semana como tendo feriado (abre a coluna extra de segunda-feira)
-    </label>
+      <input type="checkbox" id="holidayToggle" /></label>
     <div class="feriado-form">
       <input type="date" id="feriadoData" />
       <input type="text" id="feriadoNome" placeholder="Nome do feriado" />
