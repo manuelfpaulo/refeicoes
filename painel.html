@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Painel do Refeitório — ACIPOL</title>
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --ink: #1a1a2e;
+    --accent: #c0392b;
+    --gold: #d4a030;
+    --border: #e2ddd2;
+    --muted: #8a8577;
+    --success: #1e7e34;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 20px 14px;
+  }
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 20px;
+    text-align: center;
+    margin: 0 0 4px;
+  }
+  .sub { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+  /* LOGIN */
+  #login-screen { max-width: 360px; margin: 40px auto; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 26px; text-align: center; }
+  #login-screen label { font-size: 13px; display: block; text-align: left; margin-bottom: 4px; }
+  #login-screen input { width: 100%; height: 42px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; font-size: 14px; }
+  #login-screen button { width: 100%; height: 42px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  #login-msg { font-size: 13px; color: var(--accent); min-height: 16px; margin-bottom: 8px; }
+
+  /* DASHBOARD */
+  #dashboard { display: none; max-width: 900px; margin: 0 auto; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; font-size: 13px; }
+  .topbar button { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .row-info { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .badge { background: #fbeceb; color: var(--accent); font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 8px; }
+  .counter { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 16px; text-align: center; }
+  .counter .lbl { font-size: 12px; color: var(--muted); }
+  .counter .val { font-size: 22px; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+  th, td { border: 1px solid var(--border); padding: 8px 6px; text-align: center; }
+  th { font-weight: 600; }
+  th.active, td.active { background: #fdf3e9; }
+  .nome-col { text-align: left; }
+  td.clickable { cursor: pointer; }
+  .ok-icon { color: var(--success); font-weight: 700; }
+  .x-icon { color: var(--accent); font-weight: 700; }
+  .empty-icon { color: var(--muted); }
+  .revert { color: var(--muted); cursor: pointer; margin-left: 4px; font-size: 11px; text-decoration: underline; }
+
+  #admin-panel { margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; padding: 14px; background: #fff; }
+  #admin-panel h3 { font-size: 14px; margin: 0 0 10px; }
+  .holiday-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; background: var(--bg); padding: 10px; border-radius: 8px; margin-bottom: 14px; }
+  .feriado-form { display: flex; gap: 8px; margin-bottom: 10px; }
+  .feriado-form input[type=date] { height: 36px; border-radius: 8px; border: 1px solid var(--border); }
+  .feriado-form input[type=text] { flex: 1; height: 36px; border-radius: 8px; border: 1px solid var(--border); padding: 0 10px; }
+  .feriado-form button { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0 14px; font-size: 13px; cursor: pointer; }
+  ul#feriado-lista { list-style: none; padding: 0; margin: 0; font-size: 12px; }
+  ul#feriado-lista li { padding: 6px 0; border-top: 1px solid var(--border); }
+  ul#feriado-lista li:first-child { border-top: none; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <h1>Painel do Refeitório</h1>
+  <div class="sub">ACIPOL — Faça login para continuar</div>
+  <div id="login-msg"></div>
+  <label>Utilizador</label>
+  <input type="text" id="username" autocomplete="off" />
+  <label>Senha</label>
+  <input type="password" id="password" />
+  <button id="btnLogin">Entrar</button>
+</div>
+
+<div id="dashboard">
+  <div class="topbar">
+    <div>Logado como <b id="userLabel"></b></div>
+    <button id="btnLogout">Sair</button>
+  </div>
+
+  <div class="row-info">
+    <span class="badge" id="dataBadge">—</span>
+    <div class="counter">
+      <div class="lbl" id="counterLabel">Restantes agora</div>
+      <div class="val" id="counterValue">—</div>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table>
+      <thead id="tableHead"></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="admin-panel" style="display:none;">
+    <h3>Gestão de feriados (admin)</h3>
+    <label class="holiday-toggle">
+      <input type="checkbox" id="holidayToggle" />
+      Marcar este fim de semana como tendo feriado (abre a coluna extra de segunda-feira)
+    </label>
+    <div class="feriado-form">
+      <input type="date" id="feriadoData" />
+      <input type="text" id="feriadoNome" placeholder="Nome do feriado" />
+      <button id="btnAddFeriado">Adicionar</button>
+    </div>
+    <ul id="feriado-lista"></ul>
+    <div class="hint">Este registo é só referência. Quem ativa a coluna extra é o interruptor acima, marcado manualmente a cada fim de semana.</div>
+  </div>
+</div>
+
+<script>
+  // >>> Cole aqui o URL da implantação do Apps Script (Web App) <<<
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4zTaR0zxbzubBIWCP21FRjBvby4CPK8CdS5ewglIMPfgA2VE0nKKcXB4tv1YKo0ja/exec";
+
+  var auth = null; // { username, password, nome, role }
+  var pollTimer = null;
+
+  function api(accao, params, method) {
+    params = params || {};
+    if (method === "GET") {
+      var qs = new URLSearchParams(Object.assign({ accao: accao }, params)).toString();
+      return fetch(SCRIPT_URL + "?" + qs).then(function (r) { return r.json(); });
+    }
+    var body = new URLSearchParams(Object.assign({ accao: accao }, params));
+    return fetch(SCRIPT_URL, { method: "POST", body: body }).then(function (r) { return r.json(); });
+  }
+
+  document.getElementById("btnLogin").addEventListener("click", function () {
+    var username = document.getElementById("username").value.trim();
+    var password = document.getElementById("password").value;
+    if (!username || !password) return;
+    api("login", { username: username, password: password }, "POST").then(function (data) {
+      if (!data.ok) {
+        document.getElementById("login-msg").textContent = data.erro || "Login inválido.";
+        return;
+      }
+      auth = { username: username, password: password, nome: data.nome, role: data.role };
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      document.getElementById("userLabel").textContent = data.nome + (data.role === "admin" ? " (admin)" : "");
+      document.getElementById("admin-panel").style.display = data.role === "admin" ? "block" : "none";
+      if (data.role === "admin") carregarFeriados();
+      carregarPainel();
+      pollTimer = setInterval(carregarPainel, 6000); // atualiza sozinho a cada 6 segundos
+    });
+  });
+
+  document.getElementById("btnLogout").addEventListener("click", function () {
+    auth = null;
+    clearInterval(pollTimer);
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("login-screen").style.display = "block";
+    document.getElementById("password").value = "";
+  });
+
+  function carregarPainel() {
+    api("painel", {}, "GET").then(renderPainel);
+  }
+
+  function renderPainel(data) {
+    document.getElementById("dataBadge").textContent = data.colunas.length ? data.colunas[0].day : "Sem refeições hoje";
+
+    var thead = document.getElementById("tableHead");
+    var tbody = document.getElementById("tableBody");
+
+    if (!data.colunas.length) {
+      thead.innerHTML = "";
+      tbody.innerHTML = '<tr><td style="padding:20px;color:var(--muted);">Sem refeições de fim de semana hoje.</td></tr>';
+      document.getElementById("counterLabel").textContent = "Fora do período de refeições";
+      document.getElementById("counterValue").textContent = "—";
+      return;
+    }
+
+    thead.innerHTML = "<tr><th></th><th class='nome-col'>Nome completo</th>" +
+      data.colunas.map(function (c) {
+        var cls = c.key === data.colunaAtiva ? "active" : "";
+        return "<th class='" + cls + "'>" + c.meal + "<br><span style='font-weight:400;font-size:11px;'>" + c.inicio + "–" + c.fim + "</span></th>";
+      }).join("") + "</tr>";
+
+    tbody.innerHTML = data.linhas.map(function (l, i) {
+      var cells = data.colunas.map(function (c) {
+        var cel = l.celulas[c.key];
+        var isActive = c.key === data.colunaAtiva;
+        var cls = isActive ? "active" : "";
+        var icon = "";
+        var title = "";
+        if (cel.estado === "presente") {
+          icon = "<span class='ok-icon'>&#10003;</span>";
+          title = "Marcado por " + cel.marcadoPor;
+        } else if (cel.estado === "ausente") {
+          icon = "<span class='x-icon'>&#10007;</span>";
+        } else {
+          icon = "<span class='empty-icon'>&#9633;</span>";
+        }
+        var clickable = isActive && cel.estado === "vazio";
+        var revertLink = "";
+        if (auth.role === "admin" && cel.estado !== "vazio") {
+          revertLink = "<span class='revert' data-col='" + c.key + "' data-mat='" + l.matricula + "'>desfazer</span>";
+        }
+        return "<td class='" + cls + (clickable ? " clickable" : "") + "' title='" + title + "' " +
+          (clickable ? "data-col='" + c.key + "' data-mat='" + l.matricula + "'" : "") + ">" + icon + revertLink + "</td>";
+      }).join("");
+      return "<tr><td>" + (i + 1) + "</td><td class='nome-col'>" + l.nome + "</td>" + cells + "</tr>";
+    }).join("");
+
+    // marcar ao clicar
+    Array.prototype.forEach.call(tbody.querySelectorAll("td.clickable"), function (td) {
+      td.addEventListener("click", function () {
+        var col = td.getAttribute("data-col");
+        var mat = td.getAttribute("data-mat");
+        api("marcar", { username: auth.username, password: auth.password, matricula: mat, colunaKey: col }, "POST")
+          .then(function (res) { if (res.ok) carregarPainel(); });
+      });
+    });
+
+    // reverter (admin)
+    Array.prototype.forEach.call(tbody.querySelectorAll(".revert"), function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var col = el.getAttribute("data-col");
+        var mat = el.getAttribute("data-mat");
+        api("reverter", { username: auth.username, password: auth.password, matricula: mat, colunaKey: col }, "POST")
+          .then(function (res) { if (res.ok) carregarPainel(); });
+      });
+    });
+
+    if (data.colunaAtiva !== null) {
+      var ativa = data.colunas.filter(function (c) { return c.key === data.colunaAtiva; })[0];
+      document.getElementById("counterLabel").textContent = "Restantes agora (" + ativa.meal + ")";
+      document.getElementById("counterValue").textContent = data.restantes;
+    } else {
+      document.getElementById("counterLabel").textContent = "Entre refeições";
+      document.getElementById("counterValue").textContent = "—";
+    }
+
+    if (auth.role === "admin") {
+      document.getElementById("holidayToggle").checked = !!data.holidayAtiva;
+    }
+  }
+
+  document.getElementById("holidayToggle").addEventListener("change", function (e) {
+    api("toggleFeriado", { username: auth.username, password: auth.password, ativar: e.target.checked }, "POST")
+      .then(function () { carregarPainel(); });
+  });
+
+  function carregarFeriados() {
+    api("listarFeriados", {}, "GET").then(function (lista) {
+      var ul = document.getElementById("feriado-lista");
+      if (!lista.length) {
+        ul.innerHTML = "<li style='color:var(--muted);'>Nenhum feriado cadastrado.</li>";
+        return;
+      }
+      ul.innerHTML = lista.map(function (f) { return "<li>" + f.data + " — " + f.nome + "</li>"; }).join("");
+    });
+  }
+
+  document.getElementById("btnAddFeriado").addEventListener("click", function () {
+    var data = document.getElementById("feriadoData").value;
+    var nome = document.getElementById("feriadoNome").value.trim();
+    if (!data || !nome) return;
+    api("addFeriado", { username: auth.username, password: auth.password, data: data, nome: nome }, "POST")
+      .then(function (res) {
+        if (res.ok) {
+          document.getElementById("feriadoData").value = "";
+          document.getElementById("feriadoNome").value = "";
+          carregarFeriados();
+        }
+      });
+  });
+</script>
+</body>
+</html>
