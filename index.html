@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Inscrição de Residentes</title>
+<link rel="icon" type="image/png" href="favicon.png" />
+<style>
+  :root {
+    --cream: #fff6ed;
+    --border-rest: #f6bc86;
+    --border-focus: #fe8f4d;
+    --card-border: #e3e3e3;
+    --ink: #222222;
+    --muted: #8a8577;
+    --success: #1e7e34;
+    --error: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #fffff6;
+    color: var(--ink);
+  }
+  .layout {
+    min-height: 100vh;
+    display: flex;
+  }
+  .photo-panel {
+    flex: 1;
+    background: #d9d3c7 url('foto-acipol.jpg') center/cover no-repeat;
+    border-radius: 0 48px 48px 0;
+  }
+  .form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+  .card {
+    width: 100%;
+    max-width: 330px;
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.04);
+  }
+  .emblem {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 3px;
+    display: block;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+  .emblem img { width: 100%; height: 100%; object-fit: cover;}
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 20px;
+    text-align: center;
+    margin: 0 0 22px;
+  }
+  .sub { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 0.3px; }
+  .status {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 17px;
+    border-radius: 17px;
+    margin-bottom: 10px;
+  }
+  .status.aberto { background: #eaf6ec; color: var(--success); }
+  .status.fechado { background: #f3f1ec; color: var(--muted); }
+
+  .field { margin-bottom: 16px; }
+  label { font-size: 13px; color: var(--ink); display: block; padding: 4px; margin-bottom: 5px; }
+  input[type=text] {
+    width: 100%;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 15px;
+    border: 1px solid var(--border-rest);
+    background: var(--cream);
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color .15s ease;
+  }
+  input[type=text]:focus {
+    outline: none;
+    border: 2px solid var(--border-focus);
+  }
+  input[type=text].filled {
+    background: #ececec;
+    border: 1px solid #c9c9c9;
+  }
+  input[type=text].filled:focus {
+    background: var(--cream);
+    border: 2px solid var(--border-focus);
+  }
+  .field-error {
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 4px;
+    display: none;
+  }
+  .field.invalid input { border: 2px solid var(--error); }
+  .field.invalid .field-error { display: block; }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+  }
+  .field.shake { animation: shake 0.4s; }
+
+  button {
+    width: 100%;
+    height: 35px;
+    background: #ffffff;
+    color: var(--ink);
+    border: 1.5px solid var(--border-focus);
+    border-radius: 19px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  button:hover:not(:disabled) { background: var(--cream); }
+  button:disabled { border-color: var(--card-border); color: var(--muted); cursor: not-allowed; }
+
+  #msg { font-size: 13px; min-height: 18px; margin: 10px 0; text-align: center; }
+  #msg.ok { color: var(--success); }
+  #msg.erro { color: var(--error); }
+
+  .list-title { font-size: 13px; font-weight: 600; margin: 22px 0 8px; display: flex; justify-content: space-between; color: var(--ink); }
+  ul#lista { list-style: none; padding: 0; margin: 0; border: 1px solid var(--card-border); border-radius: 10px; overflow: hidden; }
+  ul#lista li { padding: 9px 12px; font-size: 13px; border-top: 1px solid var(--card-border); }
+  ul#lista li:first-child { border-top: none; }
+  .empty { text-align: center; color: var(--muted); padding: 14px; font-size: 13px; }
+
+  @media (max-width: 760px) {
+    .photo-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="photo-panel"></div>
+  <div class="form-panel">
+    <div class="card">
+      <div class="emblem"><img src="favicon.png" alt="Emblema ACIPOL" /></div>
+      <h1>ACIPOL</h1>
+      <div class="sub"></div>
+      <h1>Inscrição de Residente</h1>
+      
+
+      <div id="status" class="status">A verificar...</div>
+
+      <form id="form" novalidate>
+        <div class="field" id="field-nome">
+          <label for="nome">Nome completo</label>
+          <input type="text" id="nome" placeholder="seu nome aqui..." autocomplete="off" />
+          <div class="field-error">Escreva o nome completo</div>
+        </div>
+
+        <div class="field" id="field-matricula">
+          <label for="matricula">Nuri</label>
+          <input type="text" id="matricula" placeholder="seu nuri aqui..." autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="4" />
+          <div class="field-error">O NURI contem apenas 4 dígitos.</div>
+        </div>
+
+        <button type="submit" id="btnEnviar">Inscrever-me</button>
+      </form>
+      <div id="msg"></div>
+
+      <div class="list-title">
+        <span id="contagem">0 Cadetes</span>
+        <span>Inscritos até então</span>
+      </div>
+      <ul id="lista"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  // >>> Cole aqui o URL da implantação do Apps Script (Web App) <<<
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4zTaR0zxbzubBIWCP21FRjBvby4CPK8CdS5ewglIMPfgA2VE0nKKcXB4tv1YKo0ja/exec";
+
+  var formAberto = false;
+  var msgTimer = null;
+
+  function carregarStatus() {
+    fetch(SCRIPT_URL + "?accao=statusFormulario")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        formAberto = !!data.aberto;
+        var statusEl = document.getElementById("status");
+        var btn = document.getElementById("btnEnviar");
+        if (formAberto) {
+          statusEl.textContent = "Dispon]ivel até quinta-feira, 21:00";
+          statusEl.className = "status aberto";
+          btn.disabled = false;
+        } else {
+          statusEl.textContent = "Indisponível, até segunda-feira";
+          statusEl.className = "status fechado";
+          btn.disabled = true;
+        }
+        renderLista(data.inscritos || []);
+      })
+      .catch(function () {
+        document.getElementById("status").textContent = "Sem Internet";
+      });
+  }
+
+  function renderLista(inscritos) {
+    document.getElementById("contagem").textContent = inscritos.length + " cadetes";
+    var ul = document.getElementById("lista");
+    if (inscritos.length === 0) {
+      ul.innerHTML = '<li class="empty">Sem inscrições</li>';
+      return;
+    }
+    ul.innerHTML = inscritos.map(function (ins, i) {
+      return "<li>" + (i + 1) + ". " + ins.nome + "</li>";
+    }).join("");
+  }
+
+  function toggleFilled(inp) {
+    if (inp.value.trim() !== "") { inp.classList.add("filled"); }
+    else { inp.classList.remove("filled"); }
+  }
+  var camposFormulario = [document.getElementById("nome"), document.getElementById("matricula")];
+  camposFormulario.forEach(function (inp) {
+    inp.addEventListener("blur", function () { toggleFilled(inp); });
+  });
+
+  function marcarInvalido(fieldId, invalido) {
+    var el = document.getElementById(fieldId);
+    if (invalido) {
+      el.classList.add("invalid");
+      el.classList.add("shake");
+      setTimeout(function () { el.classList.remove("shake"); }, 400);
+    } else {
+      el.classList.remove("invalid");
+    }
+  }
+
+  function mostrarMsg(texto, ok, autoDismiss) {
+    var msg = document.getElementById("msg");
+    clearTimeout(msgTimer);
+    msg.className = ok ? "ok" : "erro";
+    if (ok && autoDismiss) {
+      var restante = 5;
+      msg.textContent = texto + " (" + restante + ")";
+      var iv = setInterval(function () {
+        restante -= 1;
+        if (restante <= 0) {
+          clearInterval(iv);
+          msg.textContent = "";
+        } else {
+          msg.textContent = texto + " (" + restante + ")";
+        }
+      }, 1000);
+    } else {
+      msg.textContent = texto;
+    }
+  }
+
+  document.getElementById("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!formAberto) return;
+
+    var nome = document.getElementById("nome").value.trim();
+    var matricula = document.getElementById("matricula").value.trim();
+    camposFormulario.forEach(toggleFilled);
+
+    var valido = true;
+    if (!nome) { marcarInvalido("field-nome", true); valido = false; } else { marcarInvalido("field-nome", false); }
+    if (!/^\d{4}$/.test(matricula)) { marcarInvalido("field-matricula", true); valido = false; } else { marcarInvalido("field-matricula", false); }
+    if (!valido) return;
+
+    var btn = document.getElementById("btnEnviar");
+    var textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
+
+    var body = new URLSearchParams();
+    body.append("accao", "inscrever");
+    body.append("nome", nome);
+    body.append("matricula", matricula);
+
+    fetch(SCRIPT_URL, { method: "POST", body: body })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+        if (data.ok) {
+          mostrarMsg("Inscrição registada com sucesso.", true, true);
+          document.getElementById("nome").value = "";
+          document.getElementById("matricula").value = "";
+          carregarStatus();
+        } else {
+          mostrarMsg(data.erro || "Impossível inscrever.", false, false);
+        }
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+        mostrarMsg("Sem internet. Tente novamente.", false, false);
+      });
+  });
+
+  document.getElementById("matricula").addEventListener("input", function (e) {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+  });
+
+  document.getElementById("matricula").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { document.getElementById("form").requestSubmit(); }
+  });
+
+  document.getElementById("nome").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { document.getElementById("form").requestSubmit(); }
+  });
+
+  carregarStatus();
+  setInterval(carregarStatus, 10000); // atualiza sozinho a cada 10 segundos
+</script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Área da Cozinha</title>
+<link rel="icon" type="image/png" href="favicon.png" />
+<style>
+  :root {
+    --cream: #fff6ed;
+    --border-rest: #f6bc86;
+    --border-focus: #fe8f4d;
+    --card-border: #e3e3e3;
+    --ink: #222222;
+    --muted: #8a8577;
+    --success: #1e7e34;
+    --error: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #fffff6;
+    color: var(--ink);
+  }
+
+  /* LOGIN — foto à esquerda + cartão flutuante à direita */
+  .login-layout { min-height: 100vh; display: flex; }
+  .photo-panel {
+    flex: 1;
+    background: #d9d3c7 url('foto-acipol.jpg') center/cover no-repeat;
+    border-radius: 0 48px 48px 0;
+  }
+  .login-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 20px; }
+  .card {
+    width: 100%;
+    max-width: 330px;
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.04);
+  }
+  .emblem {
+    width: 72px; height: 72px; margin: 0 auto 3px; display: block; overflow: hidden; border-radius: 50%;
+  }
+  .emblem img { width: 100%; height: 100%; object-fit: cover; }
+  h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; text-align: center; margin: 0 0 2px; }
+  .sub { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  .field { margin-bottom: 16px; }
+  label { font-size: 13px; display: block; margin-bottom: 5px; }
+  input[type=text], input[type=password] {
+    width: 100%; height: 36px; padding: 0 14px; border-radius: 15px;
+    border: 1px solid var(--border-rest); background: var(--cream);
+    font-size: 14px; color: var(--ink); transition: border-coor .15s ease;
+  }
+  input:focus { outline: none; border: 2px solid var(--border-focus); }
+  input.filled { background: #ececec; border: 1px solid #c9c9c9; }
+  input.filled:focus { background: var(--cream); border: 2px solid var(--border-focus); }
+  .field-error { font-size: 12px; color: var(--error); margin-top: 4px; display: none; }
+  .field.invalid input { border: 2px solid var(--error); }
+  .field.invalid .field-error { display: block; }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+  }
+  .field.shake { animation: shake 0.4s; }
+
+  button.primary {
+    width: 100%; height: 35px; background: #ffffff; color: var(--ink);
+    border: 1.5px solid var(--border-focus); border-radius: 19px;
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s ease;
+  }
+  button.primary:hover { background: var(--cream); }
+  #login-msg { font-size: 13px; color: var(--error); min-height: 16px; margin-bottom: 8px; text-align: center; }
+
+  /* DASHBOARD */
+  #dashboard { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; font-size: 13px; }
+  .topbar button {
+    background: #ffffff; border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 7px 14px; font-size: 12px; color: var(--muted); cursor: pointer;
+  }
+  .topbar button:hover { border-color: var(--border-focus); color: var(--ink); }
+  .row-info { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .badge { background: var(--cream); border: 1px solid var(--border-rest); color: #a5652a; font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 10px; }
+  .counter { background: #ffffff; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 18px; text-align: center; }
+  .counter .lbl { font-size: 12px; color: var(--muted); }
+  .counter .val { font-size: 22px; font-weight: 700; }
+
+  .search-box { margin-bottom: 12px; }
+  .search-box input {
+    width: 100%; height: 42px; padding: 0 14px; border-radius: 14px;
+    border: 1px var(--border-rest); background: var(--cream);
+    font-size: 14px; color: var(--ink);
+  }
+  .search-box input:focus { outline: none; border: 1px solid var(--border-focus); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+  th, td { border: 1px solid var(--card-border); padding: 9px 6px; text-align: center; }
+  th { font-weight: 600; background: #fafafa; }
+  th.active, td.active { background: var(--cream); }
+  .nome-col { text-align: left; }
+  td.clickable { cursor: pointer; }
+  td.clickable:hover { background: #fdeee0; }
+  .ok-icon { color: var(--success); font-weight: 700; }
+  .x-icon { color: var(--error); font-weight: 700; }
+  .empty-icon { color: var(--muted); }
+  .revert { color: var(--muted); cursor: pointer; margin-left: 4px; font-size: 11px; text-decoration: underline; }
+
+  #admin-panel { margin-top: 22px; border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; background: #ffffff; }
+  #admin-panel h3 { font-size: 14px; margin: 0 0 12px; font-family: 'Playfair Display', Georgia, serif; }
+  .holiday-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; background: var(--cream); padding: 10px 12px; border-radius: 10px; margin-bottom: 16px; border: 1px solid var(--border-rest); }
+  .feriado-form { display: flex; gap: 8px; margin-bottom: 10px; }
+  .feriado-form input[type=date] { height: 38px; border-radius: 10px; border: 1px solid var(--border-rest); background: var(--cream); padding: 0 10px; }
+  .feriado-form input[type=text] { flex: 1; height: 38px; border-radius: 10px; border: 1px solid var(--border-rest); background: var(--cream); padding: 0 10px; }
+  .feriado-form button { background: #ffffff; border: 1.5px solid var(--border-focus); border-radius: 10px; padding: 0 16px; font-size: 13px; cursor: pointer; }
+  .feriado-form button:hover { background: var(--cream); }
+  ul#feriado-lista { list-style: none; padding: 0; margin: 0; font-size: 12px; }
+  ul#feriado-lista li { padding: 7px 0; border-top: 1px solid var(--card-border); }
+  ul#feriado-lista li:first-child { border-top: none; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  #msg-ok { font-size: 13px; color: var(--success); min-height: 16px; text-align: center; margin-bottom: 10px; }
+
+  @media (max-width: 760px) {
+    .photo-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-layout" id="login-screen">
+  <div class="photo-panel"></div>
+  <div class="login-panel">
+    <div class="card">
+      <div class="emblem"><img src="favicon.png" alt="Emblema ACIPOL" /></div>
+      <h1>ACIPOL</h1>
+      <h1>Painel do Refeitório</h1>
+      
+      <div id="login-msg"></div>
+
+      <div class="field" id="field-username">
+        <label>Usuário</label>
+        <input type="text" id="username" placeholder="seu usuário aqui" autocomplete="off" />
+        <div class="field-error">Escreva o usuário.</div>
+      </div>
+      <div class="field" id="field-password">
+        <label>Senha</label>
+        <input type="password" id="password" placeholder="sua senha aqui"/>
+        <div class="field-error">Escreva a senha.</div>
+      </div>
+      <button class="primary" id="btnLogin">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="dashboard">
+  <div class="topbar">
+    <div>Entrou como <b id="userLabel"></b></div>
+    <button id="btnLogout">Sair</button>
+  </div>
+
+  <div class="row-info">
+    <span class="badge" id="dataBadge">—</span>
+    <div class="counter">
+      <div class="lbl" id="counterLabel">Restam</div>
+      <div class="val" id="counterValue">—</div>
+      <div class="lbl" id="counterLabel1">Cadetes</div>
+    </div>
+  </div>
+
+  <div id="msg-ok"></div>
+
+  <div class="search-box">
+    <input type="text" id="buscaInput" placeholder="Pesquisa por nome / nuri..." />
+  </div>
+
+  <div style="overflow-x:auto; border-radius:12px; border:1px solid var(--card-border);">
+    <table>
+      <thead id="tableHead"></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="admin-panel" style="display:none;">
+    <h3>Gestão de feriados (admin)</h3>
+    <label class="holiday-toggle">
+      <input type="checkbox" id="holidayToggle" />
+      Marcar este fim de semana como tendo feriado (abre a coluna extra de segunda-feira)
+    </label>
+    <div class="feriado-form">
+      <input type="date" id="feriadoData" />
+      <input type="text" id="feriadoNome" placeholder="Nome do feriado" />
+      <button id="btnAddFeriado">Adicionar</button>
+    </div>
+    <ul id="feriado-lista"></ul>
+    <div class="hint">Este registo é só referência. Quem ativa a coluna extra é o interruptor acima, marcado manualmente a cada fim de semana.</div>
+  </div>
+</div>
+
+<script>
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4zTaR0zxbzubBIWCP21FRjBvby4CPK8CdS5ewglIMPfgA2VE0nKKcXB4tv1YKo0ja/exec";
+
+  var auth = null;
+  var pollTimer = null;
+  var ultimoPainelData = null;
+  var filtroAtual = "";
+
+  function api(accao, params, method) {
+    params = params || {};
+    if (method === "GET") {
+      var qs = new URLSearchParams(Object.assign({ accao: accao }, params)).toString();
+      return fetch(SCRIPT_URL + "?" + qs).then(function (r) { return r.json(); });
+    }
+    var body = new URLSearchParams(Object.assign({ accao: accao }, params));
+    return fetch(SCRIPT_URL, { method: "POST", body: body }).then(function (r) { return r.json(); });
+  }
+
+  function toggleFilled(inp) {
+    if (inp.value.trim() !== "") { inp.classList.add("filled"); }
+    else { inp.classList.remove("filled"); }
+  }
+  var camposLogin = [document.getElementById("username"), document.getElementById("password")];
+  camposLogin.forEach(function (inp) {
+    inp.addEventListener("blur", function () { toggleFilled(inp); });
+  });
+
+  function marcarInvalido(fieldId, invalido) {
+    var el = document.getElementById(fieldId);
+    if (invalido) {
+      el.classList.add("invalid");
+      el.classList.add("shake");
+      setTimeout(function () { el.classList.remove("shake"); }, 400);
+    } else {
+      el.classList.remove("invalid");
+    }
+  }
+
+  function fazerLogin() {
+    var username = document.getElementById("username").value.trim();
+    var password = document.getElementById("password").value;
+    camposLogin.forEach(toggleFilled);
+
+    var valido = true;
+    if (!username) { marcarInvalido("field-username", true); valido = false; } else { marcarInvalido("field-username", false); }
+    if (!password) { marcarInvalido("field-password", true); valido = false; } else { marcarInvalido("field-password", false); }
+    if (!valido) return;
+
+    var btn = document.getElementById("btnLogin");
+    var textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Entrando...";
+
+    api("login", { username: username, password: password }, "POST").then(function (data) {
+      if (!data.ok) {
+        document.getElementById("login-msg").textContent = data.erro || "Login inválido.";
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+        return;
+      }
+      auth = { username: username, password: password, nome: data.nome, role: data.role };
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      document.getElementById("userLabel").textContent = data.nome + (data.role === "admin" ? " (admin)" : "");
+      document.getElementById("admin-panel").style.display = data.role === "admin" ? "block" : "none";
+      if (data.role === "admin") carregarFeriados();
+      carregarPainel();
+      pollTimer = setInterval(carregarPainel, 6000);
+    });
+  }
+
+  document.getElementById("btnLogin").addEventListener("click", fazerLogin);
+  document.getElementById("password").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") fazerLogin();
+  });
+
+  document.getElementById("username").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") fazerLogin();
+  });
+
+  document.getElementById("btnLogout").addEventListener("click", function () {
+    auth = null;
+    clearInterval(pollTimer);
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("login-screen").style.display = "flex";
+    document.getElementById("password").value = "";
+  });
+
+  function carregarPainel() {
+    api("painel", {}, "GET").then(renderPainel);
+  }
+
+  function normalizarBusca(s) {
+    return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function filtrarLinhas(linhas, termo) {
+    var t = normalizarBusca(termo);
+    if (!t) return linhas;
+    return linhas.filter(function (l) {
+      return normalizarBusca(l.nome).indexOf(t) !== -1 || String(l.matricula).indexOf(t) !== -1;
+    });
+  }
+
+  function destacar(texto, termo) {
+    if (!termo) return texto;
+    var idx = String(texto).toLowerCase().indexOf(String(termo).toLowerCase());
+    if (idx === -1) return texto;
+    return String(texto).slice(0, idx) +
+      "<mark style='background:var(--border-rest); color:inherit; padding:0 1px; border-radius:3px;'>" +
+      String(texto).slice(idx, idx + termo.length) +
+      "</mark>" +
+      String(texto).slice(idx + termo.length);
+  }
+
+  function renderPainel(data) {
+    ultimoPainelData = data;
+    document.getElementById("dataBadge").textContent = data.colunas.length ? data.colunas[0].day : "Sem refeições hoje";
+
+    var thead = document.getElementById("tableHead");
+    var tbody = document.getElementById("tableBody");
+
+    if (!data.colunas.length) {
+      var linhasPreview = filtrarLinhas(data.linhas, filtroAtual);
+      thead.innerHTML = "<tr><th class='nome-col'>Nome completo</th><th>NURI</th></tr>";
+      if (linhasPreview.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" style="padding:20px;color:var(--muted);">Ainda ninguém se inscreveu para o próximo fim de semana.</td></tr>';
+      } else {
+        tbody.innerHTML = linhasPreview.map(function (l) {
+          return "<tr><td class='nome-col'>" + destacar(l.nome, filtroAtual) + "</td><td>" + destacar(String(l.matricula), filtroAtual) + "</td></tr>";
+        }).join("");
+      }
+      document.getElementById("counterLabel").textContent = "Pré-visualização — inscritos para o próximo fim de semana";
+      document.getElementById("counterValue").textContent = data.linhas.length;
+      return;
+    }
+
+    thead.innerHTML = "<tr><th></th><th class='nome-col'>Nome completo</th>" +
+      data.colunas.map(function (c) {
+        var cls = c.key === data.colunaAtiva ? "active" : "";
+        return "<th class='" + cls + "'>" + c.meal + "<br><span style='font-weight:400;font-size:11px;'>" + c.inicio + "–" + c.fim + "</span></th>";
+      }).join("") + "</tr>";
+
+    var linhasFiltradas = filtrarLinhas(data.linhas, filtroAtual);
+
+    if (linhasFiltradas.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="' + (data.colunas.length + 2) + '" style="padding:16px;color:var(--muted);">Nenhum cadete encontrado.</td></tr>';
+    } else {
+    tbody.innerHTML = linhasFiltradas.map(function (l, i) {
+      var cells = data.colunas.map(function (c) {
+        var cel = l.celulas[c.key];
+        var isActive = c.key === data.colunaAtiva;
+        var cls = isActive ? "active" : "";
+        var icon = "";
+        var title = "";
+        if (cel.estado === "presente") {
+          icon = "<span class='ok-icon'>&#10003;</span>";
+          title = "Marcado por " + cel.marcadoPor;
+        } else if (cel.estado === "ausente") {
+          icon = "<span class='x-icon'>&#10007;</span>";
+        } else {
+          icon = "<span class='empty-icon'>&#9633;</span>";
+        }
+        var clickable = isActive && cel.estado === "vazio";
+        var revertLink = "";
+        if (auth.role === "admin" && cel.estado !== "vazio") {
+          revertLink = "<span class='revert' data-col='" + c.key + "' data-mat='" + l.matricula + "'>desfazer</span>";
+        }
+        return "<td class='" + cls + (clickable ? " clickable" : "") + "' title='" + title + "' " +
+          (clickable ? "data-col='" + c.key + "' data-mat='" + l.matricula + "'" : "") + ">" + icon + revertLink + "</td>";
+      }).join("");
+      return "<tr><td>" + (i + 1) + "</td><td class='nome-col'>" + destacar(l.nome, filtroAtual) + "</td>" + cells + "</tr>";
+    }).join("");
+    }
+
+    Array.prototype.forEach.call(tbody.querySelectorAll("td.clickable"), function (td) {
+      td.addEventListener("click", function () {
+        var col = td.getAttribute("data-col");
+        var mat = td.getAttribute("data-mat");
+        api("marcar", { username: auth.username, password: auth.password, matricula: mat, colunaKey: col }, "POST")
+          .then(function (res) {
+            if (res.ok) {
+              carregarPainel();
+              mostrarMsgOk("Marcação registada.");
+            }
+          });
+      });
+    });
+
+    Array.prototype.forEach.call(tbody.querySelectorAll(".revert"), function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var col = el.getAttribute("data-col");
+        var mat = el.getAttribute("data-mat");
+        api("reverter", { username: auth.username, password: auth.password, matricula: mat, colunaKey: col }, "POST")
+          .then(function (res) {
+            if (res.ok) {
+              carregarPainel();
+              mostrarMsgOk("Marcação revertida.");
+            }
+          });
+      });
+    });
+
+    if (data.colunaAtiva !== null) {
+      var ativa = data.colunas.filter(function (c) { return c.key === data.colunaAtiva; })[0];
+      document.getElementById("counterLabel").textContent = "Restam sem " + ativa.meal + "";
+      document.getElementById("counterValue").textContent = data.restantes;
+      document.getElementById("counterLabel1").textContent = "Cadetes";
+    } else {
+      document.getElementById("counterLabel").textContent = "Entre refeições";
+      document.getElementById("counterValue").textContent = "—";
+    }
+
+    if (auth.role === "admin") {
+      document.getElementById("holidayToggle").checked = !!data.holidayAtiva;
+    }
+  }
+
+  var msgOkTimer = null;
+  function mostrarMsgOk(texto) {
+    var el = document.getElementById("msg-ok");
+    clearTimeout(msgOkTimer);
+    var restante = 5;
+    el.textContent = texto + " (" + restante + ")";
+    var iv = setInterval(function () {
+      restante -= 1;
+      if (restante <= 0) { clearInterval(iv); el.textContent = ""; }
+      else { el.textContent = texto + " (" + restante + ")"; }
+    }, 1000);
+  }
+
+  document.getElementById("holidayToggle").addEventListener("change", function (e) {
+    api("toggleFeriado", { username: auth.username, password: auth.password, ativar: e.target.checked }, "POST")
+      .then(function () { carregarPainel(); });
+  });
+
+  function carregarFeriados() {
+    api("listarFeriados", {}, "GET").then(function (lista) {
+      var ul = document.getElementById("feriado-lista");
+      if (!lista.length) {
+        ul.innerHTML = "<li style='color:var(--muted);'>Nenhum feriado cadastrado.</li>";
+        return;
+      }
+      ul.innerHTML = lista.map(function (f) { return "<li>" + f.data + " — " + f.nome + "</li>"; }).join("");
+    });
+  }
+
+  document.getElementById("btnAddFeriado").addEventListener("click", function () {
+    var data = document.getElementById("feriadoData").value;
+    var nome = document.getElementById("feriadoNome").value.trim();
+    if (!data || !nome) return;
+    api("addFeriado", { username: auth.username, password: auth.password, data: data, nome: nome }, "POST")
+      .then(function (res) {
+        if (res.ok) {
+          document.getElementById("feriadoData").value = "";
+          document.getElementById("feriadoNome").value = "";
+          carregarFeriados();
+        }
+      });
+  });
+
+  document.getElementById("buscaInput").addEventListener("input", function (e) {
+    filtroAtual = e.target.value;
+    if (ultimoPainelData) renderPainel(ultimoPainelData);
+  });
+</script>
+</body>
+</html>
