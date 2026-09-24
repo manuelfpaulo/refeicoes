@@ -161,7 +161,7 @@
 
 <div id="dashboard">
   <div class="topbar">
-    <div>Entrou como <b id="userLabel"></b></div>
+    <div>NOME: <b id="userLabel"></b></div>
     <button id="btnLogout">Sair</button>
   </div>
 
@@ -188,10 +188,10 @@
   </div>
 
   <div id="admin-panel" style="display:none;">
-    <h3>Gestão de feriados (admin)</h3>
+    <h3>Feriados (admin)</h3>
     <label class="holiday-toggle">
       <input type="checkbox" id="holidayToggle" />
-      Marcar este fim de semana como tendo feriado (abre a coluna extra de segunda-feira)
+      Marcar Feriado
     </label>
     <div class="feriado-form">
       <input type="date" id="feriadoData" />
@@ -199,7 +199,7 @@
       <button id="btnAddFeriado">Adicionar</button>
     </div>
     <ul id="feriado-lista"></ul>
-    <div class="hint">Este registo é só referência. Quem ativa a coluna extra é o interruptor acima, marcado manualmente a cada fim de semana.</div>
+    <div class="hint">Clique em MARCAR FERIADO para ativar</div>
   </div>
 </div>
 
@@ -268,7 +268,6 @@
       entrarNoDashboard(dadosAuth);
     });
   }
-
   function entrarNoDashboard(dadosAuth) {
     auth = dadosAuth;
     document.getElementById("login-screen").style.display = "none";
@@ -327,14 +326,14 @@
 
   function renderPainel(data) {
     ultimoPainelData = data;
-    document.getElementById("dataBadge").textContent = data.colunas.length ? data.colunas[0].day : "Sem refeições hoje";
+    document.getElementById("dataBadge").textContent = data.colunas.length ? data.colunas[0].day : "Período de Incrições ";
 
     var thead = document.getElementById("tableHead");
     var tbody = document.getElementById("tableBody");
 
     if (!data.colunas.length) {
       var linhasPreview = filtrarLinhas(data.linhas, filtroAtual);
-      thead.innerHTML = "<tr><th class='nome-col'>Nome completo</th><th>NURI</th></tr>";
+      thead.innerHTML = "<tr><th class='nome-col'>NOME COMPLETO</th><th>NURI</th></tr>";
       if (linhasPreview.length === 0) {
         tbody.innerHTML = '<tr><td colspan="2" style="padding:20px;color:var(--muted);">Ainda ninguém se inscreveu para o próximo fim de semana.</td></tr>';
       } else {
@@ -342,7 +341,7 @@
           return "<tr><td class='nome-col'>" + destacar(l.nome, filtroAtual) + "</td><td>" + destacar(String(l.matricula), filtroAtual) + "</td></tr>";
         }).join("");
       }
-      document.getElementById("counterLabel").textContent = "Pré-visualização — inscritos para o próximo fim de semana";
+      document.getElementById("counterLabel").textContent = "Inscritos para o próximo fim de semana";
       document.getElementById("counterValue").textContent = data.linhas.length;
       return;
     }
@@ -476,6 +475,7 @@
     filtroAtual = e.target.value;
     if (ultimoPainelData) renderPainel(ultimoPainelData);
   });
+
   (function tentarSessaoSalva() {
     var salvo = localStorage.getItem("acipol_auth");
     if (salvo) {
