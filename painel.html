@@ -263,15 +263,21 @@
         btn.textContent = textoOriginal;
         return;
       }
-      auth = { username: username, password: password, nome: data.nome, role: data.role };
-      document.getElementById("login-screen").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-      document.getElementById("userLabel").textContent = data.nome + (data.role === "admin" ? " (admin)" : "");
-      document.getElementById("admin-panel").style.display = data.role === "admin" ? "block" : "none";
-      if (data.role === "admin") carregarFeriados();
-      carregarPainel();
-      pollTimer = setInterval(carregarPainel, 6000);
+      var dadosAuth = { username: username, password: password, nome: data.nome, role: data.role };
+      localStorage.setItem("acipol_auth", JSON.stringify(dadosAuth));
+      entrarNoDashboard(dadosAuth);
     });
+  }
+
+  function entrarNoDashboard(dadosAuth) {
+    auth = dadosAuth;
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    document.getElementById("userLabel").textContent = auth.nome + (auth.role === "admin" ? " (admin)" : "");
+    document.getElementById("admin-panel").style.display = auth.role === "admin" ? "block" : "none";
+    if (auth.role === "admin") carregarFeriados();
+    carregarPainel();
+    pollTimer = setInterval(carregarPainel, 6000);
   }
 
   document.getElementById("btnLogin").addEventListener("click", fazerLogin);
@@ -285,6 +291,7 @@
 
   document.getElementById("btnLogout").addEventListener("click", function () {
     auth = null;
+    localStorage.removeItem("acipol_auth");
     clearInterval(pollTimer);
     document.getElementById("dashboard").style.display = "none";
     document.getElementById("login-screen").style.display = "flex";
@@ -469,6 +476,16 @@
     filtroAtual = e.target.value;
     if (ultimoPainelData) renderPainel(ultimoPainelData);
   });
+  (function tentarSessaoSalva() {
+    var salvo = localStorage.getItem("acipol_auth");
+    if (salvo) {
+      try {
+        entrarNoDashboard(JSON.parse(salvo));
+      } catch (e) {
+        localStorage.removeItem("acipol_auth");
+      }
+    }
+  })();
 </script>
 </body>
 </html>
