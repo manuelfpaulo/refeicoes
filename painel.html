@@ -189,10 +189,6 @@
 
   <div id="admin-panel" style="display:none;">
     <h3>Feriados (admin)</h3>
-    <label class="holiday-toggle">
-      <input type="checkbox" id="holidayToggle" />
-      Marcar Feriado
-    </label>
     <div class="feriado-form">
       <input type="date" id="feriadoData" />
       <input type="text" id="feriadoNome" placeholder="Nome do feriado" />
@@ -423,8 +419,8 @@
       document.getElementById("counterValue").textContent = "—";
     }
 
-    if (auth.role === "admin") {
-      document.getElementById("holidayToggle").checked = !!data.holidayAtiva;
+    if (data.feriadoHoje) {
+      document.getElementById("dataBadge").textContent += " · Feriado";
     }
   }
 
@@ -440,11 +436,6 @@
       else { el.textContent = texto + " (" + restante + ")"; }
     }, 1000);
   }
-
-  document.getElementById("holidayToggle").addEventListener("change", function (e) {
-    api("toggleFeriado", { username: auth.username, password: auth.password, ativar: e.target.checked }, "POST")
-      .then(function () { carregarPainel(); });
-  });
 
   function carregarFeriados() {
     api("listarFeriados", {}, "GET").then(function (lista) {
