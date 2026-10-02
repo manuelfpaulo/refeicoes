@@ -73,8 +73,8 @@
     border-radius: 17px;
     margin-bottom: 10px;
   }
-  .status.aberto { background: #eaf6ec; color: var(--success); }
-  .status.fechado { background: #f3f1ec; color: var(--muted); }
+  .status.aberto { color: var(--success); }
+  .status.fechado { color: var(--muted); }
 
   .field { margin-bottom: 16px; }
   label { font-size: 13px; color: var(--ink); display: block; padding: 4px; margin-bottom: 5px; }
@@ -204,11 +204,23 @@
         var statusEl = document.getElementById("status");
         var btn = document.getElementById("btnEnviar");
         if (formAberto) {
-          statusEl.textContent = "Disponível até às 21:00 de quinta-feira";
+          var diaSemana = new Date().getDay(); // 0=Dom..6=Sab
+          if (diaSemana === 4) {
+            statusEl.textContent = "Aberta até 21H de hoje";
+          } else if (diaSemana === 3) {
+            statusEl.textContent = "Aberta até amanhã às 21H";
+          } else {
+            statusEl.textContent = "Aberta até 21H quinta"
+          }
           statusEl.className = "status aberto";
           btn.disabled = false;
         } else {
-          statusEl.textContent = "Indisponível, até segunda-feira";
+            var diaSemanaFechado = new Date().getDay(); // 0=Dom..6=Sab
+          if (diaSemanaFechado === 0) {
+            statusEl.textContent = "Indisponível, até amanhã";
+          } else {
+            statusEl.textContent = "Indisponível, até Segunda-feira";
+          }
           statusEl.className = "status fechado";
           btn.disabled = true;
         }
