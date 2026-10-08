@@ -1,9 +1,4 @@
-// Service worker compartilhado pelo formulário (index.html) e pelo painel
-// (painel.html). Mínimo, só para o site ser reconhecido como PWA instalável.
-// Só guarda em cache os ícones (que existem nos dois sites); as páginas HTML
-// vão sempre buscar a versão mais recente na rede, e o Apps Script nunca
-// passa pelo cache.
-var CACHE_NAME = "acipol-refeicoes-v1";
+var CACHE_NAME = "acipol-refeicoes-v2";
 var ARQUIVOS_BASE = ["favicon.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", function (event) {
@@ -30,8 +25,12 @@ self.addEventListener("activate", function (event) {
 self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
-  if (req.url.indexOf("script.google.com") !== -1) return;
+  if (new URL(req.url).origin !== self.location.origin) return;
   event.respondWith(
-    fetch(req).catch(function () { return caches.match(req); })
+    fetch(req).catch(function () {
+      return caches.match(req).then(function (resp) {
+        return resp || Response.error();
+      });
+    })
   );
 });
