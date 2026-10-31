@@ -15,7 +15,7 @@ Faça os passos pela ordem indicada. Os passos 1 e 2 são do servidor (Google), 
 "Implantação" é a publicação do script como serviço que as páginas chamam. Não crie uma nova: **actualize a existente**, para o endereço não mudar.
 
 1. No Apps Script: **Implementar > Gerir implantações**.
-2. Clique no lápis da implantação existente, em **Versão** escolha **Nova versão** e clique em **Implementar**.
+2. (Esta versão tem de ser publicada, porque o servidor passou a enviar a hora.) Clique no lápis da implantação existente, em **Versão** escolha **Nova versão** e clique em **Implementar**.
 3. Confirme estas duas definições (devem ficar assim):
    - **Executar como: Eu.** O script usa a sua permissão para ler e escrever na folha. Os utilizadores das páginas não precisam de conta Google.
    - **Quem tem acesso: Qualquer pessoa.** As páginas não pedem login Google. A segurança passa a ser feita pelas sessões do próprio sistema.
@@ -24,7 +24,7 @@ Faça os passos pela ordem indicada. Os passos 1 e 2 são do servidor (Google), 
 
 Substitua estes ficheiros na pasta do projecto e faça o deploy:
 
-`index.html`, `painel.html`, `inscricao.js`, `painel.js`, `sw.js`, `manifest-formulario.json`, `manifest-painel.json` e **`vercel.json`** (novo, na raiz).
+`index.html`, `painel.html`, `inscricao.js`, `painel.js`, **`relogio.js`** (novo), `sw.js`, `manifest-formulario.json`, `manifest-painel.json` e **`vercel.json`** (novo, na raiz).
 
 Depois, quem usa o painel tem de entrar outra vez. Feche e volte a abrir as aplicações instaladas.
 
@@ -49,6 +49,10 @@ Depois, quem usa o painel tem de entrar outra vez. Feche e volte a abrir as apli
 **Segurança:** o painel e a lista pública deixaram de mostrar dados sem login. As senhas já não ficam no telemóvel (há sessão de 6 horas). Bloqueio de 15 minutos após 5 falhas. Nomes e textos validados e escapados. Operações protegidas contra pedidos simultâneos. Erros internos já não chegam ao ecrã. Perfis com lista fechada: `admin`, `responsavel`, `cozinheiro`, `chefe`. Cabeçalhos de segurança no Vercel (os scripts passaram para ficheiros `.js`, por isso qualquer script novo tem de ser um ficheiro).
 
 **Erros corrigidos:** coluna Ano; limpeza que apagava o fim de semana num domingo antes de feriado de segunda-feira (reproduzido e corrigido); o botão "desfazer" só aparece onde há marcação; o botão de enviar já não duplica pedidos.
+
+**Inscrição em 3 fases:** nome; NURI e ano; contactos. Barras de progresso em forma de seta, transições entre fases e animação de sucesso (respeita a opção de reduzir movimento do telemóvel). Se o servidor responder "Dados não reconhecidos", o formulário volta à fase 1 com os dados mantidos; "NURI já foi inscrito" leva à fase 2. Depois de uma inscrição, volta à fase 1 vazio ao fim de 5 segundos. Só mexe em `index.html` e `inscricao.js`.
+
+**Relógio:** na inscrição, a hora (hh:mm:ss) aparece no canto inferior esquerdo e a data (dd/mm/aaaa - dia da semana) no direito. No painel, só a hora, no canto inferior esquerdo, também no ecrã de login. É a hora do servidor, acertada a cada consulta (a cada 30 s na inscrição e a cada 60 s no painel). Se o servidor não responder, mostra a hora do telemóvel.
 
 **Limpeza:** comentários de histórico e de instrução removidos, código sem uso retirado, português uniforme ("utilizador"), erros de ortografia e de CSS corrigidos.
 

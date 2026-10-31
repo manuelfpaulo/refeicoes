@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Inscrição de Residentes</title>
+<link rel="icon" type="image/png" href="favicon.png" />
+<link rel="manifest" href="manifest-formulario.json" />
+<meta name="theme-color" content="#fe8f4d" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Inscrição ACIPOL" />
+<style>
+  :root {
+    --cream: #fff6ed;
+    --border-rest: #f6bc86;
+    --border-focus: #fe8f4d;
+    --card-border: #e3e3e3;
+    --ink: #222222;
+    --muted: #8a8577;
+    --success: #1e7e34;
+    --error: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #fffff6;
+    color: var(--ink);
+  }
+  .layout {
+    min-height: 100vh;
+    display: flex;
+  }
+  .photo-panel {
+    flex: 1;
+    background: #d9d3c7 url('foto-acipol.jpg') center/cover no-repeat;
+    border-radius: 0 48px 48px 0;
+  }
+  .form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px 64px;
+  }
+  .card {
+    width: 100%;
+    max-width: 330px;
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.04);
+  }
+  .emblem {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 3px;
+    display: block;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+  .emblem img { width: 100%; height: 100%; object-fit: cover;}
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 20px;
+    text-align: center;
+    margin: 0 0 10px;
+  }
+  .status {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 17px;
+    border-radius: 17px;
+    margin-bottom: 10px;
+  }
+  .status.aberto { color: var(--success); }
+  .status.fechado { color: var(--muted); }
+
+  .field { margin-bottom: 16px; }
+  label { font-size: 13px; color: var(--ink); display: block; padding: 4px; margin-bottom: 5px; }
+  input[type=text] {
+    width: 100%;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 15px;
+    border: 1px solid var(--border-rest);
+    background: var(--cream);
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color .15s ease;
+  }
+  input[type=text]:focus {
+    outline: none;
+    border: 2px solid var(--border-focus);
+  }
+  input[type=text].filled {
+    background: #ececec;
+    border: 1px solid #c9c9c9;
+  }
+  input[type=text].filled:focus {
+    background: var(--cream);
+    border: 2px solid var(--border-focus);
+  }
+  .field-error {
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 4px;
+    display: none;
+  }
+  .field.invalid input { border: 2px solid var(--error); }
+  .field.invalid .field-error { display: block; }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+  }
+  .field.shake { animation: shake 0.4s; }
+  .row-2 { display: flex; gap: 12px; align-items: flex-start; }
+  .row-2 .field-nuri { flex: 1; min-width: 0; }
+  .row-2 .field-ano { width: 96px; flex: none; }
+  select {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 15px;
+    border: 1px solid var(--border-rest);
+    background: var(--cream);
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color .15s ease;
+  }
+  select:focus { outline: none; border: 2px solid var(--border-focus); }
+  select.filled { background: #ececec; border: 1px solid #c9c9c9; }
+  select.filled:focus { background: var(--cream); border: 2px solid var(--border-focus); }
+  .field.invalid select { border: 2px solid var(--error); }
+
+  button {
+    width: 100%;
+    height: 34px;
+    background: #ffffff;
+    color: var(--ink);
+    border: 1.5px solid var(--border-focus);
+    border-radius: 19px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  button:hover:not(:disabled) { background: var(--cream); }
+  button:disabled { border-color: var(--card-border); color: var(--muted); cursor: not-allowed; }
+
+  #msg { font-size: 13px; min-height: 18px; margin: 10px 0; text-align: center; }
+  #msg.ok { color: var(--success); }
+  #msg.erro { color: var(--error); }
+
+  
+  .footer-info { text-align: center; margin-top: 22px; }
+  .footer-info .version { font-size: 9px; color: var(--muted); margin-bottom: 4px; }
+  .footer-info .copyright { font-size: 8px; color: var(--muted); }
+
+  [hidden] { display: none !important; }
+
+  .bars { display: flex; gap: 4px; margin: 0 0 18px; }
+  .sg { flex: 1; min-width: 0; }
+  .seg {
+    position: relative;
+    height: 12px;
+    background: #ece6dd;
+    clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%);
+  }
+  .seg b {
+    position: absolute;
+    inset: 0;
+    background: var(--border-focus);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .55s cubic-bezier(.22, 1, .36, 1);
+  }
+  .seg.on b { transform: scaleX(1); }
+  .sl { font-size: 11px; color: var(--muted); margin-top: 6px; transition: color .3s; }
+  .sl.cur { color: var(--ink); font-weight: 600; }
+
+  .pilha {
+    display: grid;
+    margin: 0 -28px;
+    padding: 0 28px;
+    overflow: hidden;
+    transition: height .45s cubic-bezier(.22, 1, .36, 1);
+  }
+  .step {
+    grid-area: 1 / 1;
+    align-self: start;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .3s, transform .45s cubic-bezier(.22, 1, .36, 1), visibility 0s .45s;
+  }
+  .step.before { transform: translateX(-36px); }
+  .step.after { transform: translateX(36px); }
+  .step.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition: opacity .35s .1s, transform .5s .1s cubic-bezier(.22, 1, .36, 1), visibility 0s;
+  }
+  .step.active .field,
+  .step.active .row-2 { animation: subir .5s cubic-bezier(.22, 1, .36, 1) both; }
+  .step.active .row { animation: subir .5s .12s cubic-bezier(.22, 1, .36, 1) both; }
+  @keyframes subir {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+  .row-2 .field { animation: none; }
+
+  .row { display: flex; gap: 8px; margin-top: 6px; }
+  .row button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .go { background: var(--border-focus); border-color: var(--border-focus); }
+  .go:hover:not(:disabled) { background: #ff9d63; }
+  .go:disabled { background: #f1f1f1; border-color: var(--card-border); color: var(--muted); }
+  .ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s; }
+  .go:hover:not(:disabled) .ico-r { transform: translateX(4px); }
+  .bk:hover .ico-l { transform: translateX(-4px); }
+
+  .sucesso { text-align: center; padding: 8px 0 4px; }
+  .sucesso svg { width: 76px; height: 76px; }
+  .sucesso circle { fill: none; stroke: var(--border-focus); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 189; stroke-dashoffset: 189; transform: rotate(-90deg); transform-origin: center; }
+  .sucesso path { fill: none; stroke: var(--border-focus); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 44; stroke-dashoffset: 44; }
+  .sucesso.run circle { animation: tracar .7s cubic-bezier(.22, 1, .36, 1) forwards; }
+  .sucesso.run path { animation: tracar .4s .5s ease-out forwards; }
+  .sucesso.run svg { animation: surgir .5s .2s cubic-bezier(.34, 1.56, .64, 1) both; }
+  .sucesso.run .texto { animation: subir .5s .65s both; }
+  .sucesso p { margin: 12px 0 4px; font-size: 14px; color: var(--success); font-weight: 600; }
+  .sucesso small { font-size: 12px; color: var(--muted); }
+  @keyframes tracar { to { stroke-dashoffset: 0; } }
+  @keyframes surgir { from { transform: scale(.6); } to { transform: scale(1); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0s !important; }
+  }
+
+  .relogio, .data-hoje {
+    position: fixed;
+    bottom: 14px;
+    padding: 6px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .relogio { left: 16px; }
+  .data-hoje { right: 16px; }
+  @media (max-width: 400px) {
+    .relogio, .data-hoje { font-size: 11px; padding: 5px 9px; bottom: 10px; }
+    .relogio { left: 8px; }
+    .data-hoje { right: 8px; }
+  }
+
+  @media (max-width: 760px) {
+    .photo-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="photo-panel"></div>
+  <div class="form-panel">
+    <div class="card">
+      <div class="emblem"><img src="favicon.png" alt="Emblema ACIPOL" /></div>
+      <h1>ACIPOL</h1>
+      <h1>Inscrição de Residente</h1>
+      
+
+      <div id="status" class="status">A verificar...</div>
+
+      <div id="wizard">
+        <div class="bars" role="list">
+          <div class="sg" role="listitem"><div class="seg" id="g1"><b></b></div><div class="sl" id="l1">Nome</div></div>
+          <div class="sg" role="listitem"><div class="seg" id="g2"><b></b></div><div class="sl" id="l2">NURI e ano</div></div>
+          <div class="sg" role="listitem"><div class="seg" id="g3"><b></b></div><div class="sl" id="l3">Contactos</div></div>
+        </div>
+
+        <form id="form" novalidate>
+          <div class="pilha" id="pilha">
+
+            <div class="step" id="s1">
+              <div class="field" id="field-nome">
+                <label for="nome">Nome completo</label>
+                <input type="text" id="nome" placeholder="seu nome aqui..." autocomplete="off" maxlength="80" />
+                <div class="field-error">Escreva o nome completo (apenas letras).</div>
+              </div>
+              <div class="row">
+                <button type="button" class="go" id="btnProx1">PRÓXIMO<svg class="ico ico-r" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              </div>
+            </div>
+
+            <div class="step" id="s2">
+              <div class="row-2">
+                <div class="field field-nuri" id="field-matricula">
+                  <label for="matricula">Nuri</label>
+                  <input type="text" id="matricula" placeholder="seu nuri aqui..." autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="4" />
+                  <div class="field-error">O NURI contém apenas 4 dígitos.</div>
+                </div>
+                <div class="field field-ano" id="field-ano">
+                  <label for="ano">Ano</label>
+                  <select id="ano">
+                    <option value="">escolha...</option>
+                    <option value="1">1º</option>
+                    <option value="2">2º</option>
+                    <option value="3">3º</option>
+                    <option value="4">4º</option>
+                  </select>
+                  <div class="field-error">Selecione o ano.</div>
+                </div>
+              </div>
+              <div class="row">
+                <button type="button" class="bk" id="btnVoltar2"><svg class="ico ico-l" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>VOLTAR</button>
+                <button type="button" class="go" id="btnProx2">PRÓXIMO<svg class="ico ico-r" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              </div>
+            </div>
+
+            <div class="step" id="s3">
+              <div class="field" id="field-principal">
+                <label for="principal">Contacto principal</label>
+                <input type="text" id="principal" placeholder="seu contacto principal..." autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="9" />
+                <div class="field-error">O contacto contém apenas 9 dígitos.</div>
+              </div>
+              <div class="field" id="field-alternativo">
+                <label for="alternativo">Contacto alternativo</label>
+                <input type="text" id="alternativo" placeholder="seu contacto alternativo..." autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="9" />
+                <div class="field-error">O contacto contém apenas 9 dígitos.</div>
+              </div>
+              <div class="row">
+                <button type="button" class="bk" id="btnVoltar3"><svg class="ico ico-l" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>VOLTAR</button>
+                <button type="button" class="go" id="btnEnviar">INSCREVER-SE<svg class="ico ico-r" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="sucesso" id="sucesso" hidden>
+        <svg viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="30"/><path d="M25 39l9 9 18-19"/></svg>
+        <div class="texto">
+          <p>Inscrição registada com sucesso.</p>
+          <small id="contagem"></small>
+        </div>
+      </div>
+      <div id="msg"></div>
+
+      <div class="footer-info">
+        <div class="version">v.1.2.0</div>
+        <div class="copyright">© 2026 MFP Ubuntu. Todos os direitos reservados.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="relogio" id="relogio">--:--:--</div>
+<div class="data-hoje" id="data-hoje"></div>
+
+<script src="relogio.js"></script>
+<script src="inscricao.js"></script>
+</body>
+</html>
